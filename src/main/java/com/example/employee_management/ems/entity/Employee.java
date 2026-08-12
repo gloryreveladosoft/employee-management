@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.example.employee_management.ems.validation.MinimumAge;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -56,6 +55,7 @@ public class Employee {
     @NotBlank(message = "Status is required")
     @Column(nullable = false)
     private String status;
+    
 
     @ManyToOne
     @JoinColumn(name = "department_id")
