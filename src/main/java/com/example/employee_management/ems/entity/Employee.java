@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,10 @@ public class Employee {
     private Long employeeId;
 
     @NotBlank(message = "Employee name is required")
-    @Column(nullable = false)
+    @Size(max = 100, message = "Employee name must not exceed 100 characters")
+    @Pattern(regexp = "^[A-Za-z]+(?:[ '-][A-Za-z]+)*$",
+        message = "Employee name can contain only letters, single spaces, hyphens, and apostrophes")
+    @Column(nullable = false, length = 100)
     private String employeeName;
 
     @NotBlank(message = "Email is required")
@@ -55,7 +59,6 @@ public class Employee {
     @NotBlank(message = "Status is required")
     @Column(nullable = false)
     private String status;
-    
 
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -70,6 +73,14 @@ public class Employee {
     private String updatedBy;
 
     private LocalDateTime updatedDate;
+
+    public String getStatus() {
+    return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     @JsonManagedReference
     @OneToMany(mappedBy = "employee")

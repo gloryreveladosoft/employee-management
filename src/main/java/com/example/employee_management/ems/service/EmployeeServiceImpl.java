@@ -1,8 +1,10 @@
 package com.example.employee_management.ems.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.example.employee_management.ems.entity.Employee;
 import com.example.employee_management.ems.exception.DuplicateResourceException;
@@ -13,11 +15,6 @@ import com.example.employee_management.ems.repository.EmployeeRepo;
 public class EmployeeServiceImpl implements EmployeeService{
     @Autowired
     private EmployeeRepo employeeRepo;
-
-    // @Override
-    // public Employee saveEmployee(Employee employee) {
-    //     return employeeRepo.save(employee);
-    // }
 
     @Override
     public Employee saveEmployee(Employee employee) {
@@ -34,8 +31,27 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public List<Employee> getAllEmployees() {
-        return employeeRepo.findAll();
+    public Page<Employee> getEmployees(String search, String status, int page,
+            int size, String sortBy, String sortDirection) {
+        Sort.Direction direction =
+                sortDirection.equalsIgnoreCase("desc")
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC;
+
+        Sort sort = Sort.by( direction, sortBy);
+        Pageable pageable =PageRequest.of( page,size, sort);
+        String searchValue =search == null
+                        ? ""
+                        : search.trim();
+
+        String statusValue =status == null
+                        ? "All"
+                        : status.trim();
+
+        if (statusValue.equalsIgnoreCase("All")) {
+            return employeeRepo.searchEmployees(searchValue, pageable);
+        }
+        return employeeRepo.searchEmployeesByStatus(searchValue, statusValue, pageable );
     }
 
     @Override
@@ -66,7 +82,9 @@ public class EmployeeServiceImpl implements EmployeeService{
         Employee employee = employeeRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        employeeRepo.delete(employee);
+        employee.setStatus("Inactive");
+
+        employeeRepo.save(employee);
     }
 
     
